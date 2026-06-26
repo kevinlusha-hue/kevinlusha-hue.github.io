@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Check-in Online — Il tuo soggiorno a Barberino</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@700;800&display=swap');
+
+  :root {
+    --bg: #F7F5F0;
+    --surface: #FFFFFF;
+    --border: #E2DDD6;
+    --text: #1A1714;
+    --text-soft: #6B6560;
+    --accent: #C8873A;
+    --accent-light: #FDF3E7;
+    --accent-dark: #A06A28;
+    --green: #2D7A5F;
+    --green-light: #EAF4EF;
+    --red: #C0392B;
+    --red-light: #FDF0EE;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* HERO */
+  .hero {
+    background: var(--text);
+    color: white;
+    padding: 32px 24px 28px;
+    text-align: center;
+  }
+  .hero-icon { font-size: 36px; margin-bottom: 10px; }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    margin-bottom: 6px;
+  }
+  .hero p { font-size: 13px; color: rgba(255,255,255,0.6); }
+
+  /* STEPS NAV */
+  .steps-nav {
+    display: flex;
+    background: white;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0 12px;
+  }
+  .steps-nav::-webkit-scrollbar { display: none; }
+  .step-dot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 16px;
+    gap: 4px;
+    min-width: fit-content;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+  }
+  .step-dot.active { opacity: 1; }
+  .step-dot.done { opacity: 0.7; }
+  .dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-soft);
+    transition: all 0.2s;
+  }
+  .step-dot.active .dot { background: var(--accent); color: white; }
+  .step-dot.done .dot { background: var(--green); color: white; }
+  .dot-label { font-size: 10px; color: var(--text-soft); font-weight: 500; }
+
+  /* MAIN */
+  main {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 24px 16px 80px;
+  }
+
+  /* STEP PAGES */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .card-sub {
+    font-size: 12px;
+    color: var(--text-soft);
+    margin-bottom: 18px;
+  }
+
+  /* FORM */
+  .field { margin-bottom: 14px; }
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-soft);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+  label .req { color: var(--accent); margin-left: 2px; }
+  input[type=text], input[type=email], input[type=date], select {
+    width: 100%;
+    padding: 12px 13px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--bg);
+    transition: border-color 0.15s, background 0.15s;
+    outline: none;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus {
+    border-color: var(--accent);
+    background: white;
+  }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* RADIO */
+  .radio-group { display: flex; gap: 10px; }
+  .radio-btn {
+    flex: 1;
+    padding: 11px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    text-align: center;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .radio-btn.selected {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    color: var(--accent-dark);
+  }
+
+  /* LANG TOGGLE */
+  .lang-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .lang-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--text-soft);
+    transition: all 0.15s;
+  }
+  .lang-btn.active {
+    background: var(--text);
+    color: white;
+    border-color: var(--text);
+  }
+
+  /* SELFIE */
+  .selfie-area {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--bg);
+    position: relative;
+  }
+  .selfie-area:hover { border-color: var(--accent); background: var(--accent-light); }
+  .selfie-area input[type=file] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+  .selfie-icon { font-size: 36px; margin-bottom: 8px; }
+  .selfie-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+  .selfie-sub { font-size: 12px; color: var(--text-soft); }
+  .selfie-preview {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    margin-top: 12px;
+    display: none;
+  }
+
+  /* ALERT */
+  .alert {
+    padding: 13px 15px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    line-height: 1.5;
+  }
+  .alert-info { background: #EEF4FF; border: 1px solid #C0D0F5; color: #1A3A7A; }
+  .alert-warning { background: var(--accent-light); border: 1px solid #F0C07A; color: #7A4A10; }
+  .alert-success { background: var(--green-light); border: 1px solid #A8D5C0; color: #1A5240; }
+  .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 14px 20px;
+    border-radius: var(--radius-sm);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    width: 100%;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary {
+    background: white;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-green { background: var(--green); color: white; }
+  .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+
+  /* RIEPILOGO */
+  .riepilogo-grid {
+    display: grid;
+    gap: 6px;
+  }
+  .riepilogo-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+  }
+  .riepilogo-row:last-child { border-bottom: none; }
+  .riepilogo-label {
+    font-size: 11px;
+    color: var(--text-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .riepilogo-value { font-size: 14px; font-weight: 500; text-align: right; }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .section-sub { font-size: 13px; color: var(--text-soft); margin-bottom: 20px; }
+
+  /* SUCCESS */
+  .success-wrap {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .success-icon { font-size: 64px; margin-bottom: 16px; }
+  .success-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .success-sub { color: var(--text-soft); font-size: 14px; line-height: 1.7; }
+
+  /* TOAST */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--text);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: transform 0.3s;
+    z-index: 999;
+    white-space: nowrap;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* COPY BLOCK */
+  .copy-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    font-size: 13px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    line-height: 1.8;
+    margin-bottom: 10px;
+  }
+  .copy-btn {
+    background: var(--text);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+  }
+
+  @media (max-width: 420px) {
+    .row2 { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 19px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-icon">🏠</div>
+  <h1>Check-in Online</h1>
+  <p>Barberino di Mugello · Locazione turistica</p>
+</div>
+
+<div class="steps-nav">
+  <div class="step-dot active" id="dot-1"><div class="dot">1</div><div class="dot-label">Dati</div></div>
+  <div class="step-dot" id="dot-2"><div class="dot">2</div><div class="dot-label">Documento</div></div>
+  <div class="step-dot" id="dot-3"><div class="dot">3</div><div class="dot-label">Verifica</div></div>
+  <div class="step-dot" id="dot-4"><div class="dot">4</div><div class="dot-label">Riepilogo</div></div>
+</div>
+
+<main>
+
+  <!-- LINGUA -->
+  <div class="lang-bar">
+    <button class="lang-btn active" onclick="setLang('it', this)">🇮🇹 Italiano</button>
+    <button class="lang-btn" onclick="setLang('en', this)">🇬🇧 English</button>
+    <button class="lang-btn" onclick="setLang('fr', this)">🇫🇷 Français</button>
+    <button class="lang-btn" onclick="setLang('de', this)">🇩🇪 Deutsch</button>
+  </div>
+
+  <!-- PAGE 1: DATI ANAGRAFICI -->
+  <div class="page active" id="page-1">
+    <div class="section-title" data-it="Dati personali" data-en="Personal details" data-fr="Données personnelles" data-de="Persönliche Daten">Dati personali</div>
+    <div class="section-sub" data-it="Per legge italiana dobbiamo registrare tutti gli ospiti (Art. 109 TULPS)" data-en="Italian law requires us to register all guests (Art. 109 TULPS)" data-fr="La loi italienne exige l'enregistrement de tous les clients" data-de="Das italienische Recht verlangt die Registrierung aller Gäste">Per legge italiana dobbiamo registrare tutti gli ospiti (Art. 109 TULPS)</div>
+
+    <div class="card">
+      <div class="card-title" data-it="Soggiorno" data-en="Stay" data-fr="Séjour" data-de="Aufenthalt">Soggiorno</div>
+      <div class="card-sub" data-it="Inserisci le date del tuo soggiorno" data-en="Enter your stay dates" data-fr="Entrez vos dates de séjour" data-de="Geben Sie Ihre Aufenthaltsdaten ein">Inserisci le date del tuo soggiorno</div>
+      <div class="row2">
+        <div class="field">
+          <label data-it="Data arrivo <span class='req'>*</span>" data-en="Arrival date <span class='req'>*</span>" data-fr="Date d'arrivée <span class='req'>*</span>" data-de="Ankunftsdatum <span class='req'>*</span>">Data arrivo <span class="req">*</span></label>
+          <input type="date" id="f_arrivo">
+        </div>
+        <div class="field">
+          <label data-it="Data partenza <span class='req'>*</span>" data-en="Departure date <span class='req'>*</span>" data-fr="Date de départ <span class='req'>*</span>" data-de="Abreisedatum <span class='req'>*</span>">Data partenza <span class="req">*</span></label>
+          <input type="date" id="f_partenza">
+        </div>
+      </div>
+      <div class="field">
+        <label data-it="Tipo alloggiato" data-en="Guest type" data-fr="Type de client" data-de="Gasttyp">Tipo alloggiato</label>
+        <select id="f_tipo">
+          <option value="Ospite Singolo" data-it="Ospite Singolo" data-en="Single Guest" data-fr="Client seul" data-de="Einzelgast">Ospite Singolo</option>
+          <option value="Capo famiglia" data-it="Capo famiglia" data-en="Head of family" data-fr="Chef de famille" data-de="Familienoberhaupt">Capo famiglia</option>
+          <option value="Familiare" data-it="Familiare" data-en="Family member" data-fr="Membre de la famille" data-de="Familienmitglied">Familiare</option>
+          <option value="Capo gruppo" data-it="Capo gruppo" data-en="Group leader" data-fr="Chef de groupe" data-de="Gruppenleiter">Capo gruppo</option>
+          <option value="Membro gruppo" data-it="Membro gruppo" data-en="Group member" data-fr="Membre du groupe" data-de="Gruppenmitglied">Membro gruppo</option>
+        </select>
+      </div>
+      <div class="field">
+        <label data-it="Mezzo di trasporto" data-en="Transport" data-fr="Transport" data-de="Transport">Mezzo di trasporto</label>
+        <select id="f_trasporto">
+          <option value="Non specificato">—</option>
+          <option value="Automobile">🚗 Auto / Car</option>
+          <option value="Treno">🚆 Treno / Train</option>
+          <option value="Aereo">✈️ Aereo / Airplane</option>
+          <option value="Autobus">🚌 Autobus / Bus</option>
+          <option value="Motociclo">🏍️ Moto / Motorbike</option>
+          <option value="Altro">Altro / Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" data-it="Anagrafica" data-en="Personal info" data-fr="Informations personnelles" data-de="Persönliche Angaben">Anagrafica</div>
+      <div class="card-sub" data-it="Dati dell'ospite principale" data-en="Main guest details" data-fr="Détails du client principal" data-de="Angaben zum Hauptgast">Dati dell'ospite principale</div>
+
+      <div class="field">
+        <label data-it="Sesso <span class='req'>*</span>" data-en="Gender <span class='req'>*</span>" data-fr="Sexe <span class='req'>*</span>" data-de="Geschlecht <span class='req'>*</span>">Sesso <span class="req">*</span></label>
+        <div class="radio-group">
+          <div class="radio-btn" id="rb-m" onclick="selectRadio('sesso','M',this)">♂ <span data-it="Maschio" data-en="Male" data-fr="Homme" data-de="Männlich">Maschio</span></div>
+          <div class="radio-btn" id="rb-f" onclick="selectRadio('sesso','F',this)">♀ <span data-it="Femmina" data-en="Female" data-fr="Femme" data-de="Weiblich">Femmina</span></div>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label data-it="Cognome <span class='req'>*</span>" data-en="Surname <span class='req'>*</span>" data-fr="Nom <span class='req'>*</span>" data-de="Nachname <span class='req'>*</span>">Cognome <span class="req">*</span></label>
+          <input type="text" id="f_cognome" placeholder="Rossi">
+        </div>
+        <div class="field">
+          <label data-it="Nome <span class='req'>*</span>" data-en="First name <span class='req'>*</span>" data-fr="Prénom <span class='req'>*</span>" data-de="Vorname <span class='req'>*</span>">Nome <span class="req">*</span></label>
+          <input type="text" id="f_nome" placeholder="Mario">
+        </div>
+      </div>
+
+      <div class="field">
+        <label data-it="Data di nascita <span class='req'>*</span>" data-en="Date of birth <span class='req'>*</span>" data-fr="Date de naissance <span class='req'>*</span>" data-de="Geburtsdatum <span class='req'>*</span>">Data di nascita <span class="req">*</span></label>
+        <input type="date" id="f_nascita">
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label data-it="Cittadinanza <span class='req'>*</span>" data-en="Nationality <span class='req'>*</span>" data-fr="Nationalité <span class='req'>*</span>" data-de="Staatsangehörigkeit <span class='req'>*</span>">Cittadinanza <span class="req">*</span></label>
+          <input type="text" id="f_cittadinanza" placeholder="Italiana / French...">
+        </div>
+        <div class="field">
+          <label data-it="Stato di nascita <span class='req'>*</span>" data-en="Country of birth <span class='req'>*</span>" data-fr="Pays de naissance <span class='req'>*</span>" data-de="Geburtsland <span class='req'>*</span>">Stato di nascita <span class="req">*</span></label>
+          <input type="text" id="f_stato_nascita" placeholder="Italia / France...">
+        </div>
+      </div>
+
+      <div class="field">
+        <label data-it="Comune di nascita" data-en="City of birth" data-fr="Ville de naissance" data-de="Geburtsort">Comune di nascita</label>
+        <input type="text" id="f_comune_nascita" placeholder="Roma / Paris...">
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label data-it="Stato di residenza" data-en="Country of residence" data-fr="Pays de résidence" data-de="Wohnsitzland">Stato di residenza</label>
+          <input type="text" id="f_stato_res" placeholder="Italia / France...">
+        </div>
+        <div class="field">
+          <label data-it="Comune di residenza" data-en="City of residence" data-fr="Ville de résidence" data-de="Wohnort">Comune di residenza</label>
+          <input type="text" id="f_comune_res" placeholder="Milano / Lyon...">
+        </div>
+      </div>
+
+      <div class="field">
+        <label data-it="Indirizzo di residenza" data-en="Home address" data-fr="Adresse de résidence" data-de="Wohnadresse">Indirizzo di residenza</label>
+        <input type="text" id="f_indirizzo" placeholder="Via Roma 1">
+      </div>
+
+      <div class="field">
+        <label data-it="Email" data-en="Email" data-fr="Email" data-de="E-Mail">Email</label>
+        <input type="email" id="f_email" placeholder="nome@email.com">
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="goToPage(2)">
+        <span data-it="Avanti: Documento →" data-en="Next: Document →" data-fr="Suivant: Document →" data-de="Weiter: Dokument →">Avanti: Documento →</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- PAGE 2: DOCUMENTO -->
+  <div class="page" id="page-2">
+    <div class="section-title" data-it="Documento d'identità" data-en="Identity document" data-fr="Pièce d'identité" data-de="Ausweisdokument">Documento d'identità</div>
+    <div class="section-sub" data-it="Dati e foto del documento esibito" data-en="Details and photo of the document shown" data-fr="Détails et photo du document présenté" data-de="Angaben und Foto des vorgelegten Dokuments">Dati e foto del documento esibito</div>
+
+    <div class="card">
+      <div class="card-title" data-it="Dati documento" data-en="Document details" data-fr="Détails du document" data-de="Dokumentangaben">Dati documento</div>
+      <div class="card-sub" data-it="Come riportato sul documento" data-en="As shown on the document" data-fr="Tel qu'indiqué sur le document" data-de="Wie im Dokument angegeben">Come riportato sul documento</div>
+
+      <div class="field">
+        <label data-it="Tipo documento <span class='req'>*</span>" data-en="Document type <span class='req'>*</span>" data-fr="Type de document <span class='req'>*</span>" data-de="Dokumenttyp <span class='req'>*</span>">Tipo documento <span class="req">*</span></label>
+        <select id="f_doc_tipo">
+          <option value="CARTA DI IDENTITA" data-it="Carta d'identità" data-en="National ID card" data-fr="Carte d'identité" data-de="Personalausweis">Carta d'identità</option>
+          <option value="PASSAPORTO" data-it="Passaporto" data-en="Passport" data-fr="Passeport" data-de="Reisepass">Passaporto</option>
+          <option value="PATENTE" data-it="Patente di guida" data-en="Driving licence" data-fr="Permis de conduire" data-de="Führerschein">Patente di guida</option>
+          <option value="PERMESSO DI SOGGIORNO" data-it="Permesso di soggiorno" data-en="Residence permit" data-fr="Titre de séjour" data-de="Aufenthaltserlaubnis">Permesso di soggiorno</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label data-it="Numero documento <span class='req'>*</span>" data-en="Document number <span class='req'>*</span>" data-fr="Numéro de document <span class='req'>*</span>" data-de="Dokumentnummer <span class='req'>*</span>">Numero documento <span class="req">*</span></label>
+        <input type="text" id="f_doc_num" placeholder="AB1234567" style="text-transform:uppercase">
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label data-it="Stato di rilascio <span class='req'>*</span>" data-en="Issuing country <span class='req'>*</span>" data-fr="Pays de délivrance <span class='req'>*</span>" data-de="Ausstellungsland <span class='req'>*</span>">Stato di rilascio <span class="req">*</span></label>
+          <input type="text" id="f_doc_stato" placeholder="Italia / France...">
+        </div>
+        <div class="field">
+          <label data-it="Comune di rilascio" data-en="Issuing city" data-fr="Ville de délivrance" data-de="Ausstellungsort">Comune di rilascio</label>
+          <input type="text" id="f_doc_comune" placeholder="Roma / Paris...">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" data-it="Foto del documento" data-en="Document photo" data-fr="Photo du document" data-de="Dokumentfoto">Foto del documento</div>
+      <div class="card-sub" data-it="Carica fronte e retro (o solo la pagina dati del passaporto)" data-en="Upload front and back (or just the data page for passports)" data-fr="Chargez recto et verso (ou seulement la page de données pour les passeports)" data-de="Vorder- und Rückseite hochladen (oder nur die Datenseite beim Reisepass)">Carica fronte e retro (o solo la pagina dati del passaporto)</div>
+
+      <div class="selfie-area" onclick="document.getElementById('doc-fronte').click()" style="margin-bottom:12px;">
+        <input type="file" id="doc-fronte" accept="image/*" capture="environment" onchange="previewDoc(this,'prev-fronte')">
+        <div class="selfie-icon">📄</div>
+        <div class="selfie-title" data-it="Fronte documento" data-en="Front of document" data-fr="Recto du document" data-de="Vorderseite">Fronte documento</div>
+        <div class="selfie-sub" data-it="Tocca per scattare o caricare" data-en="Tap to take photo or upload" data-fr="Appuyez pour prendre une photo ou télécharger" data-de="Tippen zum Fotografieren oder Hochladen">Tocca per scattare o caricare</div>
+        <img id="prev-fronte" class="selfie-preview">
+      </div>
+
+      <div class="selfie-area" onclick="document.getElementById('doc-retro').click()">
+        <input type="file" id="doc-retro" accept="image/*" capture="environment" onchange="previewDoc(this,'prev-retro')">
+        <div class="selfie-icon">📄</div>
+        <div class="selfie-title" data-it="Retro documento (se applicabile)" data-en="Back of document (if applicable)" data-fr="Verso du document (si applicable)" data-de="Rückseite (falls zutreffend)">Retro documento (se applicabile)</div>
+        <div class="selfie-sub" data-it="Facoltativo per passaporto" data-en="Optional for passports" data-fr="Facultatif pour les passeports" data-de="Optional für Reisepässe">Facoltativo per passaporto</div>
+        <img id="prev-retro" class="selfie-preview">
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="goToPage(3)">
+        <span data-it="Avanti: Verifica identità →" data-en="Next: Identity verification →" data-fr="Suivant: Vérification d'identité →" data-de="Weiter: Identitätsprüfung →">Avanti: Verifica identità →</span>
+      </button>
+      <button class="btn btn-secondary" onclick="goToPage(1)">
+        <span data-it="← Indietro" data-en="← Back" data-fr="← Retour" data-de="← Zurück">← Indietro</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- PAGE 3: VERIFICA DE VISU -->
+  <div class="page" id="page-3">
+    <div class="section-title" data-it="Verifica identità" data-en="Identity check" data-fr="Vérification d'identité" data-de="Identitätsprüfung">Verifica identità</div>
+    <div class="section-sub" data-it="Richiesta dalla legge italiana — solo 3 minuti" data-en="Required by Italian law — only 3 minutes" data-fr="Requis par la loi italienne — seulement 3 minutes" data-de="Gesetzlich vorgeschrieben — nur 3 Minuten">Richiesta dalla legge italiana — solo 3 minuti</div>
+
+    <div class="alert alert-info">
+      <span class="alert-icon">ℹ️</span>
+      <div data-it="La legge italiana (Art. 109 TULPS) richiede che l'host verifichi di persona o in videochiamata l'identità di ogni ospite." data-en="Italian law (Art. 109 TULPS) requires the host to verify each guest's identity in person or by video call." data-fr="La loi italienne exige que l'hôte vérifie l'identité de chaque client en personne ou par appel vidéo." data-de="Das italienische Gesetz verlangt, dass der Gastgeber die Identität jedes Gastes persönlich oder per Videoanruf überprüft.">La legge italiana (Art. 109 TULPS) richiede che l'host verifichi di persona o in videochiamata l'identità di ogni ospite.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" data-it="Scegli come verificare" data-en="Choose verification method" data-fr="Choisissez la méthode de vérification" data-de="Verifizierungsmethode wählen">Scegli come verificare</div>
+      <div class="card-sub" data-it="Seleziona l'opzione che preferisci" data-en="Select your preferred option" data-fr="Sélectionnez votre option préférée" data-de="Wählen Sie Ihre bevorzugte Option">Seleziona l'opzione che preferisci</div>
+
+      <div class="radio-btn" style="margin-bottom:10px; text-align:left; padding:14px;" id="visu-persona" onclick="selectVisu('persona')">
+        <div style="font-weight:700; margin-bottom:3px;">👤 <span data-it="Di persona" data-en="In person" data-fr="En personne" data-de="Persönlich">Di persona</span></div>
+        <div style="font-size:12px; color:var(--text-soft);" data-it="Vi incontrate all'arrivo — il più semplice" data-en="Meet at arrival — the easiest option" data-fr="Se rencontrer à l'arrivée — le plus simple" data-de="Treffen bei der Ankunft — am einfachsten">Vi incontrate all'arrivo — il più semplice</div>
+      </div>
+
+      <div class="radio-btn" style="margin-bottom:10px; text-align:left; padding:14px;" id="visu-video" onclick="selectVisu('video')">
+        <div style="font-weight:700; margin-bottom:3px;">📱 <span data-it="Videochiamata WhatsApp / FaceTime" data-en="WhatsApp / FaceTime video call" data-fr="Appel vidéo WhatsApp / FaceTime" data-de="WhatsApp / FaceTime Videoanruf">Videochiamata WhatsApp / FaceTime</span></div>
+        <div style="font-size:12px; color:var(--text-soft);" data-it="Rapida e comoda — l'host vi contatta appena arrivate" data-en="Quick and convenient — host will call you on arrival" data-fr="Rapide et pratique — l'hôte vous appelle à l'arrivée" data-de="Schnell und bequem — der Gastgeber ruft bei Ankunft an">Rapida e comoda — l'host vi contatta appena arrivate</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" data-it="Selfie con documento" data-en="Selfie with document" data-fr="Selfie avec document" data-de="Selfie mit Dokument">Selfie con documento</div>
+      <div class="card-sub" data-it="Tieniti accanto al documento aperto — serve per la verifica" data-en="Hold your open document next to your face — needed for verification" data-fr="Tenez votre document ouvert à côté de votre visage" data-de="Halten Sie Ihr geöffnetes Dokument neben Ihr Gesicht">Tieniti accanto al documento aperto — serve per la verifica</div>
+
+      <div class="selfie-area" onclick="document.getElementById('selfie-input').click()">
+        <input type="file" id="selfie-input" accept="image/*" capture="user" onchange="previewDoc(this,'prev-selfie')">
+        <div class="selfie-icon">🤳</div>
+        <div class="selfie-title" data-it="Scatta il selfie" data-en="Take selfie" data-fr="Prendre un selfie" data-de="Selfie aufnehmen">Scatta il selfie</div>
+        <div class="selfie-sub" data-it="Faccia ben visibile, documento aperto accanto" data-en="Face clearly visible, open document beside you" data-fr="Visage clairement visible, document ouvert à côté" data-de="Gesicht gut sichtbar, geöffnetes Dokument daneben">Faccia ben visibile, documento aperto accanto</div>
+        <img id="prev-selfie" class="selfie-preview">
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="goToPage(4)">
+        <span data-it="Avanti: Riepilogo →" data-en="Next: Summary →" data-fr="Suivant: Récapitulatif →" data-de="Weiter: Zusammenfassung →">Avanti: Riepilogo →</span>
+      </button>
+      <button class="btn btn-secondary" onclick="goToPage(2)">
+        <span data-it="← Indietro" data-en="← Back" data-fr="← Retour" data-de="← Zurück">← Indietro</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- PAGE 4: RIEPILOGO -->
+  <div class="page" id="page-4">
+    <div class="section-title" data-it="Riepilogo" data-en="Summary" data-fr="Récapitulatif" data-de="Zusammenfassung">Riepilogo</div>
+    <div class="section-sub" data-it="Controlla i dati prima di confermare" data-en="Check your details before confirming" data-fr="Vérifiez vos données avant de confirmer" data-de="Überprüfen Sie Ihre Daten vor der Bestätigung">Controlla i dati prima di confermare</div>
+
+    <div class="card">
+      <div id="riepilogo-content" class="riepilogo-grid"></div>
+    </div>
+
+    <div class="alert alert-warning">
+      <span class="alert-icon">✅</span>
+      <div data-it="Confermando dichiari che i dati inseriti sono veritieri e corrispondono al documento esibito." data-en="By confirming you declare that the information provided is accurate and matches your identity document." data-fr="En confirmant, vous déclarez que les données saisies sont exactes et correspondent au document présenté." data-de="Mit der Bestätigung erklären Sie, dass die eingegebenen Daten korrekt sind und dem vorgelegten Dokument entsprechen.">Confermando dichiari che i dati inseriti sono veritieri e corrispondono al documento esibito.</div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-green" onclick="conferma()">
+        <span data-it="✓ Conferma check-in" data-en="✓ Confirm check-in" data-fr="✓ Confirmer le check-in" data-de="✓ Check-in bestätigen">✓ Conferma check-in</span>
+      </button>
+      <button class="btn btn-secondary" onclick="goToPage(3)">
+        <span data-it="← Modifica" data-en="← Edit" data-fr="← Modifier" data-de="← Bearbeiten">← Modifica</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- PAGE 5: SUCCESSO + DATI HOST -->
+  <div class="page" id="page-5">
+    <div class="success-wrap">
+      <div class="success-icon">🎉</div>
+      <div class="success-title" data-it="Check-in completato!" data-en="Check-in complete!" data-fr="Check-in terminé!" data-de="Check-in abgeschlossen!">Check-in completato!</div>
+      <div class="success-sub" data-it="Grazie! I tuoi dati sono stati registrati. A breve ti contatteremo per la verifica identità." data-en="Thank you! Your details have been saved. We'll contact you shortly for identity verification." data-fr="Merci! Vos données ont été enregistrées. Nous vous contacterons bientôt pour la vérification d'identité." data-de="Danke! Ihre Daten wurden gespeichert. Wir werden uns bald zur Identitätsverifizierung melden.">Grazie! I tuoi dati sono stati registrati. A breve ti contatteremo per la verifica identità.</div>
+    </div>
+
+    <!-- PANNELLO HOST (nascosto all'ospite idealmente) -->
+    <div class="card" style="border: 2px solid var(--accent);">
+      <div class="card-title">📋 Dati per Turismo 5 / Alloggiati Web</div>
+      <div class="card-sub">Copia e incolla sul portale — solo per te (host)</div>
+      <div id="host-copy" class="copy-block"></div>
+      <button class="copy-btn" onclick="copiaDatiHost()">📋 Copia tutti i dati</button>
+    </div>
+  </div>
+
+</main>
+
+<div id="toast">✅ Copiato!</div>
+
+<script>
+  // LINGUA
+  let currentLang = 'it';
+  function setLang(lang, btn) {
+    currentLang = lang;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('[data-' + lang + ']').forEach(el => {
+      el.innerHTML = el.getAttribute('data-' + lang);
+    });
+  }
+
+  // RADIO
+  let radios = { sesso: null, visu: null };
+  function selectRadio(group, val, el) {
+    radios[group] = val;
+    el.parentElement.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+  function selectVisu(val) {
+    radios.visu = val;
+    document.getElementById('visu-persona').classList.remove('selected');
+    document.getElementById('visu-video').classList.remove('selected');
+    document.getElementById('visu-' + val).classList.add('selected');
+  }
+
+  // PREVIEW FOTO
+  function previewDoc(input, previewId) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = document.getElementById(previewId);
+      img.src = e.target.result;
+      img.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // NAVIGAZIONE
+  function goToPage(n) {
+    if (n > 1 && !validaPage(n - 1)) return;
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + n).classList.add('active');
+    window.scrollTo(0, 0);
+    updateDots(n);
+    if (n === 4) buildRiepilogo();
+    if (n === 5) buildHostData();
+  }
+
+  function updateDots(n) {
+    for (let i = 1; i <= 4; i++) {
+      const dot = document.getElementById('dot-' + i);
+      dot.classList.remove('active', 'done');
+      if (i === n) dot.classList.add('active');
+      else if (i < n) dot.classList.add('done');
+    }
+    if (n === 5) {
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById('dot-' + i).classList.remove('active');
+        document.getElementById('dot-' + i).classList.add('done');
+      }
+    }
+  }
+
+  // VALIDAZIONE
+  function validaPage(n) {
+    if (n === 1) {
+      const req = ['f_arrivo','f_partenza','f_cognome','f_nome','f_nascita','f_cittadinanza','f_stato_nascita'];
+      for (const id of req) {
+        if (!document.getElementById(id).value.trim()) {
+          alert(currentLang === 'it' ? 'Compila tutti i campi obbligatori (*)' :
+                currentLang === 'en' ? 'Please fill in all required fields (*)' :
+                currentLang === 'fr' ? 'Veuillez remplir tous les champs obligatoires (*)' :
+                'Bitte füllen Sie alle Pflichtfelder aus (*)');
+          document.getElementById(id).focus();
+          return false;
+        }
+      }
+      if (!radios.sesso) {
+        alert(currentLang === 'it' ? 'Seleziona il sesso' : 'Please select gender');
+        return false;
+      }
+    }
+    if (n === 2) {
+      const req = ['f_doc_num','f_doc_stato'];
+      for (const id of req) {
+        if (!document.getElementById(id).value.trim()) {
+          alert(currentLang === 'it' ? 'Inserisci il numero e lo stato di rilascio del documento' : 'Please enter document number and issuing country');
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  // RIEPILOGO
+  function buildRiepilogo() {
+    const fd = (d) => { if(!d) return '—'; const [y,m,g] = d.split('-'); return `${g}/${m}/${y}`; };
+    const data = getDati();
+    let html = '';
+    const rows = [
+      ['Arrivo / Arrival', fd(data.arrivo)],
+      ['Partenza / Departure', fd(data.partenza)],
+      ['Tipo', data.tipo],
+      ['Cognome / Surname', data.cognome.toUpperCase()],
+      ['Nome / First name', data.nome],
+      ['Sesso / Gender', data.sesso === 'M' ? 'Maschio / Male' : 'Femmina / Female'],
+      ['Data nascita / Date of birth', fd(data.nascita)],
+      ['Luogo nascita / Place of birth', `${data.comune_nascita || '—'}, ${data.stato_nascita}`],
+      ['Cittadinanza / Nationality', data.cittadinanza],
+      ['Residenza / Residence', `${data.comune_res || '—'}, ${data.stato_res || '—'}`],
+      ['Documento / Document', `${data.doc_tipo} – ${data.doc_num.toUpperCase()}`],
+      ['Rilascio / Issued by', `${data.doc_comune || '—'}, ${data.doc_stato}`],
+      ['Verifica / Check', data.visu === 'persona' ? '👤 Di persona / In person' : '📱 Videochiamata / Video call'],
+      ['Email', data.email || '—'],
+      ['Trasporto / Transport', data.trasporto],
+    ];
+    rows.forEach(([label, val]) => {
+      html += `<div class="riepilogo-row"><span class="riepilogo-label">${label}</span><span class="riepilogo-value">${val}</span></div>`;
+    });
+    document.getElementById('riepilogo-content').innerHTML = html;
+  }
+
+  function getDati() {
+    return {
+      arrivo: document.getElementById('f_arrivo').value,
+      partenza: document.getElementById('f_partenza').value,
+      tipo: document.getElementById('f_tipo').value,
+      trasporto: document.getElementById('f_trasporto').value,
+      sesso: radios.sesso,
+      cognome: document.getElementById('f_cognome').value,
+      nome: document.getElementById('f_nome').value,
+      nascita: document.getElementById('f_nascita').value,
+      cittadinanza: document.getElementById('f_cittadinanza').value,
+      stato_nascita: document.getElementById('f_stato_nascita').value,
+      comune_nascita: document.getElementById('f_comune_nascita').value,
+      stato_res: document.getElementById('f_stato_res').value,
+      comune_res: document.getElementById('f_comune_res').value,
+      indirizzo: document.getElementById('f_indirizzo').value,
+      email: document.getElementById('f_email').value,
+      doc_tipo: document.getElementById('f_doc_tipo').value,
+      doc_num: document.getElementById('f_doc_num').value,
+      doc_stato: document.getElementById('f_doc_stato').value,
+      doc_comune: document.getElementById('f_doc_comune').value,
+      visu: radios.visu || 'videochiamata',
+    };
+  }
+
+  function buildHostData() {
+    const fd = (d) => { if(!d) return '—'; const [y,m,g] = d.split('-'); return `${g}/${m}/${y}`; };
+    const d = getDati();
+    const text = `══ DATI TURISMO 5 / ALLOGGIATI WEB ══
+
+Tipo alloggiato:     ${d.tipo}
+Sesso:               ${d.sesso === 'M' ? 'Maschio' : 'Femmina'}
+Cognome:             ${d.cognome.toUpperCase()}
+Nome:                ${d.nome}
+Data nascita:        ${fd(d.nascita)}
+Cittadinanza:        ${d.cittadinanza}
+Stato nascita:       ${d.stato_nascita}
+Comune nascita:      ${d.comune_nascita || '—'}
+Stato residenza:     ${d.stato_res || '—'}
+Comune residenza:    ${d.comune_res || '—'}
+Indirizzo:           ${d.indirizzo || '—'}
+Tipo documento:      ${d.doc_tipo}
+Numero documento:    ${d.doc_num.toUpperCase()}
+Stato rilascio:      ${d.doc_stato}
+Comune rilascio:     ${d.doc_comune || '—'}
+Data arrivo:         ${fd(d.arrivo)}
+Data partenza:       ${fd(d.partenza)}
+Mezzo trasporto:     ${d.trasporto}
+Email:               ${d.email || '—'}
+Verifica de visu:    ${d.visu === 'persona' ? '✓ Di persona' : '✓ Videochiamata'}
+
+══════════════════════════════════`;
+    document.getElementById('host-copy').textContent = text;
+    window._hostText = text;
+  }
+
+  function copiaDatiHost() {
+    navigator.clipboard.writeText(window._hostText || '').then(() => showToast('✅ Dati copiati!'));
+  }
+
+  // CONFERMA
+  function conferma() {
+    goToPage(5);
+  }
+
+  // TOAST
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg || '✅ Copiato!';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+</script>
+</body>
+</html>
